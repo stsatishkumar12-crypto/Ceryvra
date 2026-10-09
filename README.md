@@ -12,18 +12,58 @@ npm run build      # production build in dist/
 npm run preview    # serve the build at http://localhost:4173
 ```
 
-## Demo logins (hardcoded)
+## Roles and demo logins (scope §7)
 
-| Login type | Email | Password | Access |
-|---|---|---|---|
-| Admin Login | `admin@ceryvra.com` | `Admin@123` | All screens, including Compliance & Policies and Settings & Tenancy |
-| User Login | `user@ceryvra.com` | `User@123` | All workflow screens. Admin screens show an "Access Restricted" state |
+There is one hardcoded demo account for each of the nine roles in the scope document. On the login page:
+1. Pick **Admin Login** or **User Login**.
+2. Choose a role.
+3. Click **Use demo login**, then sign in.
 
-On the login page you can also:
-- click **Use demo login** to fill in the credentials;
-- use **Sign in with Microsoft Entra ID** or the workspace-domain form (both are simulated).
+| Login tab | Role | Email | Password | Opens on |
+|---|---|---|---|---|
+| Admin | Platform Administrator | `admin@ceryvra.com` | `Admin@123` | Dashboard |
+| Admin | Tenant Administrator | `tenant.admin@ceryvra.com` | `Tenant@123` | Admin Rules & Evidence |
+| Admin | Delegated MSP Operator | `msp@ceryvra.com` | `Msp@123` | Tenant & MSP Administration |
+| User | Standard User | `user@ceryvra.com` | `User@123` | Dashboard |
+| User | Decision Owner | `owner@ceryvra.com` | `Owner@123` | Dashboard |
+| User | Reviewer / Approver | `approver@ceryvra.com` | `Approver@123` | Dashboard |
+| User | Authorized Executor | `executor@ceryvra.com` | `Executor@123` | Recovery |
+| User | Independent Verifier | `verifier@ceryvra.com` | `Verifier@123` | Verification |
+| User | Auditor | `auditor@ceryvra.com` | `Auditor@123` | Audit History |
 
-All three sign in as the selected login type, show the client's "Connecting to Microsoft Entra ID" state, and then open the dashboard. **Sign out** is at the bottom of the sidebar.
+### What each role can open
+
+| Screen | Platform Admin | Tenant Admin | MSP Operator | Standard User | Decision Owner | Approver | Executor | Verifier | Auditor |
+|---|---|---|---|---|---|---|---|---|---|
+| Dashboard | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Governance Inventory | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | | | ✓ |
+| Governed Chat, Notes | ✓ | ✓ | | ✓ | ✓ | ✓ | | | |
+| Decision Record | ✓ | ✓ | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Missing Evidence | ✓ | ✓ | | | ✓ | ✓ | | ✓ | ✓ |
+| Change Detection, Revalidation | ✓ | | | | ✓ | ✓ | | | ✓ |
+| Consequence Graph, Recovery, Verification | ✓ | | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Audit History | ✓ | ✓ | ✓ | | ✓ | ✓ | | ✓ | ✓ |
+| Admin Rules & Evidence | ✓ | ✓ | ✓ | | | | | | |
+| Tenant & MSP Administration | ✓ | ✓ | ✓ | | | | | | |
+
+The sidebar only shows the screens a role can open. Opening any other screen by URL or button shows an "Access Restricted" state that lists the roles allowed there.
+
+### What each role can do (role/authority segregation, §7)
+
+| Action | Allowed roles |
+|---|---|
+| Create a governed use case | Standard User, Decision Owner, Platform Administrator |
+| Record a decision; attach or attest evidence | Decision Owner, Reviewer / Approver |
+| Approve (revalidation, recovery quorum, bounded Microsoft action) | Reviewer / Approver |
+| Execute recovery actions and the Microsoft action | Authorized Executor |
+| Verify, reject verification, close a recovery | Independent Verifier |
+| Configure rules, evidence requirements, branding | Tenant Administrator, Platform Administrator, delegated MSP Operator |
+| Switch into delegated customer tenants | Delegated MSP Operator, Platform Administrator |
+| Auditor | Read-only |
+
+Buttons a role is not allowed to use stay visible but are dimmed. Hover shows who is allowed, and clicking shows a message instead of running the action. The Platform Administrator has no approve, execute or verify rights, and the MSP Operator has no cross-tenant approval or execution rights, as §7 requires.
+
+All rules live in `src/roles.js`.
 
 ## Screens and routes
 
@@ -42,26 +82,28 @@ All three sign in as the selected login type, show the client's "Connecting to M
 | `/recovery` | Recovery | Recovery Planning |
 | `/verification` | Verification | Approvals & Verification |
 | `/audit-history` | Audit History | Audit Log & History |
-| `/admin/rules` | Admin Rules & Evidence (admin only) | Compliance & Policies |
-| `/admin/tenants` | Tenant & MSP Administration (admin only) | Settings & Tenancy |
+| `/admin/rules` | Admin Rules & Evidence | Compliance & Policies |
+| `/admin/tenants` | Tenant & MSP Administration | Settings & Tenancy |
 
 ## Workflow demo (scope §5, 11 steps)
 
-The **Workflow Demo** card at the bottom of the sidebar walks through the scope's mandatory workflow. Use **Start**, **Next** and **Prev**, or open the step list to jump to any step.
+The **Workflow Demo** card at the bottom of the sidebar walks through the scope's mandatory workflow. Use **Start**, **Next** and **Prev**, or open the step list to jump to any step. Each step shows which role performs it. If you are signed in as a different role, click **Switch to …** to continue as that role. This is a demo shortcut and does not exist in the product.
 
-| Step | Scope requirement | Screen | R-IDs |
-|---|---|---|---|
-| 1 | User creates a governed use case, with notes/chat | Governance Inventory (+ Governed Chat, Notes) | R-002, R-003 |
-| 2 | Reviewer records the decision, evidence, authority, assumptions, rule version and obligations | Decision Record | R-004, R-005, R-015 |
-| 3 | Decision stays provisional while evidence is incomplete | Missing Evidence | R-018 |
-| 4 | New, expired or revised evidence is linked to the right decision branch | Change Detection | R-005, R-015 |
-| 5 | Materiality gate separates relevant from irrelevant changes | Change Detection | R-016 |
-| 6 | Only affected decisions are revalidated; the original stays comparable | Revalidation | R-006, R-017 |
-| 7 | Downstream affected and unaffected items | Consequence Graph | R-007, R-008 |
-| 8 | Minimum sufficient recovery plan | Recovery | R-009, R-019 |
-| 9 | Authorized executor runs one bounded Microsoft action after approval | Recovery → ACT-03 panel | R-011 |
-| 10 | Independent verifier gets fresh evidence; execution alone cannot close | Verification → Independent Read-Back panel | R-010, R-020 |
-| 11 | Audit shows the whole lifecycle, including failures, retries and verified closure | Audit History → Recovery Lifecycle panel | R-014 |
+| Step | Scope requirement | Role | Screen | R-IDs |
+|---|---|---|---|---|
+| 1 | User creates a governed use case, with notes/chat | Standard User | Governance Inventory (+ Governed Chat, Notes) | R-002, R-003 |
+| 2 | Reviewer records the decision, evidence, authority, assumptions, rule version and obligations | Reviewer / Approver | Decision Record | R-004, R-005, R-015 |
+| 3 | Decision stays provisional while evidence is incomplete | Decision Owner | Missing Evidence | R-018 |
+| 4 | New, expired or revised evidence is linked to the right decision branch | Decision Owner | Change Detection | R-005, R-015 |
+| 5 | Materiality gate separates relevant from irrelevant changes | Reviewer / Approver | Change Detection | R-016 |
+| 6 | Only affected decisions are revalidated; the original stays comparable | Reviewer / Approver | Revalidation | R-006, R-017 |
+| 7 | Downstream affected and unaffected items | Decision Owner | Consequence Graph | R-007, R-008 |
+| 8 | Minimum sufficient recovery plan, subject to approvals | Reviewer / Approver | Recovery | R-009, R-019 |
+| 9 | Authorized executor runs one bounded Microsoft action after approval | Authorized Executor | Recovery → ACT-03 panel | R-011 |
+| 10 | Independent verifier gets fresh evidence; execution alone cannot close | Independent Verifier | Verification → Independent Read-Back panel | R-010, R-020 |
+| 11 | Audit shows the whole lifecycle, including failures, retries and verified closure | Auditor | Audit History → Recovery Lifecycle panel | R-014 |
+
+The scope names the actor for steps 1, 2, 8 (approvals), 9, 10 and 11. For steps 3, 4, 5 and 7 it describes system behaviour without naming a role, so the role shown is the one that reviews that screen.
 
 Buttons inside the screens also link the steps together. For example:
 - Change Detection → **Launch Revalidation Wizard**
@@ -116,8 +158,9 @@ src/components/            Shared sidebar, workflow guide, layout, access-denied
 src/components/extensions/ Scope panels added to client screens (Microsoft action, verification, audit)
 src/demo/                  Mock workflow steps and Microsoft-action state
 src/pages/Login.jsx        Login page (client design + Admin/User login)
-src/auth.jsx               Demo-only auth with hardcoded accounts (sessionStorage)
-src/routes.js              Route table and role access
+src/auth.jsx               Demo-only auth: one hardcoded account per role (sessionStorage)
+src/roles.js               The nine roles, page access, action permissions, landing pages
+src/routes.js              Route table
 tailwind.config.js         Client design tokens, copied exactly from the HTML files
 ```
 
@@ -128,5 +171,6 @@ If the client sends updated HTML files, put them in the parent folder and run `n
 - **One shared sidebar.** Each client page had a slightly different sidebar. They are merged into one, based on the most complete version (from the Consequence Graph page), so every screen can be reached from every page.
 - **Two sidebar entries added.** "Targeted Revalidation" and "Governance Notes" were added because those screens existed but had no sidebar link.
 - **Workflow Demo and Microsoft action panels added.** These cover scope §5 steps 9–11 (R-010, R-011, R-014, R-020), which the client screens did not show yet. They are injected by `src/components/PageExtension.jsx`, so the generated pages stay untouched.
-- **Admin/User login added.** The login page has an Admin/User login selector and an email/password form, as requested. The rest of the client login design is unchanged.
+- **Admin/User login with the nine scope roles.** The login page has Admin Login and User Login tabs, a role picker and an email/password form. The rest of the client login design is unchanged.
+- **Header persona follows the signed-in role.** The client headers always showed "Dr. Elena Rostova". They now show the signed-in demo account and its role.
 - **Logos stored locally.** The logo images are saved in `public/brand/`, because the original Google-hosted image links do not load from localhost.
