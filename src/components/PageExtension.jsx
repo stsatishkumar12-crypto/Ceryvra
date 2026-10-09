@@ -24,6 +24,7 @@ export default function PageExtension({ id, anchorText, className = '', children
     const el = document.createElement('div');
     el.id = id;
     el.className = className;
+    el.setAttribute('data-extension', '');
     const card = anchorText ? findCard(main, anchorText) : null;
     if (card) card.parentNode.insertBefore(el, card);
     else main.appendChild(el);

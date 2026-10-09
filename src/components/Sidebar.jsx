@@ -5,7 +5,7 @@
 // screens exist in the client files but had no sidebar entry.
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth';
-import { canAccess } from '../routes';
+import { ROLE_ICON, ROLE_LABEL, canAccess } from '../roles';
 import WorkflowGuide from './WorkflowGuide';
 
 const IDLE = 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface';
@@ -115,12 +115,14 @@ export default function Sidebar() {
         </div>
         <nav className="flex-1 overflow-y-auto px-space-sm py-space-sm flex flex-col gap-space-xs">
           {TOP.filter(allowed).map((item) => <Item key={item.to} item={item} />)}
-          <div className="flex flex-col gap-space-xs">
-            <Item item={EVIDENCE} highlight={false} />
-            <div className="pl-space-lg flex flex-col gap-space-xs">
-              {EVIDENCE_CHILDREN.filter(allowed).map((item) => <Item key={item.to + item.label} item={item} child />)}
+          {EVIDENCE_CHILDREN.some(allowed) && (
+            <div className="flex flex-col gap-space-xs">
+              {allowed(EVIDENCE) && <Item item={EVIDENCE} highlight={false} />}
+              <div className="pl-space-lg flex flex-col gap-space-xs">
+                {EVIDENCE_CHILDREN.filter(allowed).map((item) => <Item key={item.to + item.label} item={item} child />)}
+              </div>
             </div>
-          </div>
+          )}
           {BOTTOM.filter(allowed).map((item) => <Item key={item.to} item={item} />)}
         </nav>
       </div>
@@ -135,12 +137,12 @@ export default function Sidebar() {
         </div>
         <div className="p-space-xs rounded bg-surface-container-lowest flex items-center gap-space-xs">
           <div className="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[18px]">{user.role === 'admin' ? 'admin_panel_settings' : 'person'}</span>
+            <span className="material-symbols-outlined text-[18px]">{ROLE_ICON[user.role]}</span>
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <span className="font-label-sm text-label-sm text-on-surface font-semibold truncate">{user.name}</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant truncate">
-              {user.role === 'admin' ? 'Admin' : 'User'} · {user.email}
+            <span className="font-body-sm text-body-sm text-on-surface-variant truncate" title={user.email}>
+              {ROLE_LABEL[user.role]}
             </span>
           </div>
         </div>

@@ -4,6 +4,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MS_ACTION, MS_STATUS, msActions, useMsAction } from '../../demo/msActionStore';
+import { useAuth } from '../../auth';
+import { CAP, CAP_LABEL, ROLE_LABEL, can } from '../../roles';
 
 const CARD = 'bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm mb-space-md';
 const BTN_PRIMARY = 'py-2 px-space-md rounded bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
@@ -21,6 +23,36 @@ const STATUS_STYLE = {
   [MS_STATUS.VERIFIED]: ['bg-tertiary-container text-on-tertiary-container', 'Verified'],
   [MS_STATUS.CLOSED]: ['bg-tertiary text-on-tertiary', 'Closed • Verified'],
 };
+
+// Action button that only the authorized role can use (scope §7 role/authority segregation).
+function GatedButton({ cap, onClick, disabled, className = BTN_PRIMARY, children }) {
+  const { user } = useAuth();
+  const allowed = can(user.role, cap);
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={allowed ? onClick : undefined}
+      disabled={disabled || !allowed}
+      title={allowed ? undefined : `Requires: ${CAP_LABEL[cap]}`}
+    >
+      {!allowed && <span className="material-symbols-outlined text-[18px]">lock</span>}
+      {children}
+    </button>
+  );
+}
+
+// Tells the signed-in role who performs the next step.
+function NextActor({ cap }) {
+  const { user } = useAuth();
+  if (can(user.role, cap)) return null;
+  return (
+    <span className="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+      <span className="material-symbols-outlined text-[16px]">info</span>
+      Signed in as {ROLE_LABEL[user.role]}. Next step is performed by: {CAP_LABEL[cap]}.
+    </span>
+  );
+}
 
 function StatusChip({ status }) {
   const [cls, label] = STATUS_STYLE[status];
@@ -83,6 +115,7 @@ export function MsExecutionPanel() {
   const ms = useMsAction();
   const delay = useDelay();
   const [simulateFailure, setSimulateFailure] = useState(false);
+  const { user } = useAuth();
   const s = ms.status;
 
   const execute = () => {
@@ -141,20 +174,24 @@ export function MsExecutionPanel() {
 
       <div className="flex flex-wrap items-center gap-space-sm pt-space-xs">
         {s === MS_STATUS.PENDING_APPROVAL && (
-          <button type="button" className={BTN_PRIMARY} onClick={msActions.approve}>
-            <span className="material-symbols-outlined text-[18px]">approval_delegation</span>
-            Approve Action (Approver)
-          </button>
+          <>
+            <GatedButton cap={CAP.APPROVE} onClick={msActions.approve}>
+              <span className="material-symbols-outlined text-[18px]">approval_delegation</span>
+              Approve Action (Approver)
+            </GatedButton>
+            <NextActor cap={CAP.APPROVE} />
+          </>
         )}
         {[MS_STATUS.APPROVED, MS_STATUS.EXECUTION_FAILED, MS_STATUS.EXECUTING].includes(s) && (
           <>
-            <button type="button" className={BTN_PRIMARY} onClick={execute} disabled={s === MS_STATUS.EXECUTING}>
+            <GatedButton cap={CAP.EXECUTE} onClick={execute} disabled={s === MS_STATUS.EXECUTING}>
               <span className={`material-symbols-outlined text-[18px] ${s === MS_STATUS.EXECUTING ? 'animate-spin' : ''}`}>
                 {s === MS_STATUS.EXECUTING ? 'progress_activity' : s === MS_STATUS.EXECUTION_FAILED ? 'replay' : 'play_circle'}
               </span>
               {s === MS_STATUS.EXECUTING ? 'Executing via Microsoft Graph…' : s === MS_STATUS.EXECUTION_FAILED ? 'Retry Execution' : 'Execute via Microsoft Graph (Executor)'}
-            </button>
-            <Toggle checked={simulateFailure} onChange={setSimulateFailure} label="Simulate permission failure" />
+            </GatedButton>
+            {can(user.role, CAP.EXECUTE) && <Toggle checked={simulateFailure} onChange={setSimulateFailure} label="Simulate permission failure" />}
+            <NextActor cap={CAP.EXECUTE} />
           </>
         )}
         {[MS_STATUS.AWAITING_VERIFICATION, MS_STATUS.VERIFICATION_FAILED, MS_STATUS.VERIFIED, MS_STATUS.VERIFYING].includes(s) && (
@@ -184,6 +221,8 @@ export function MsVerificationPanel() {
   const ms = useMsAction();
   const delay = useDelay();
   const [simulateMismatch, setSimulateMismatch] = useState(false);
+  const { user } = useAuth();
+  const canVerify = can(user.role, CAP.VERIFY);
   const s = ms.status;
   const notExecuted = [MS_STATUS.PENDING_APPROVAL, MS_STATUS.APPROVED, MS_STATUS.EXECUTING, MS_STATUS.EXECUTION_FAILED].includes(s);
   const observed = s === MS_STATUS.VERIFICATION_FAILED ? [MS_ACTION.members[2]] : [];
@@ -246,24 +285,25 @@ export function MsVerificationPanel() {
           <div className="flex flex-wrap items-center gap-space-sm pt-space-xs">
             {[MS_STATUS.AWAITING_VERIFICATION, MS_STATUS.VERIFYING].includes(s) && (
               <>
-                <button type="button" className={BTN_PRIMARY} onClick={verify} disabled={s === MS_STATUS.VERIFYING}>
+                <GatedButton cap={CAP.VERIFY} onClick={verify} disabled={s === MS_STATUS.VERIFYING}>
                   <span className={`material-symbols-outlined text-[18px] ${s === MS_STATUS.VERIFYING ? 'animate-spin' : ''}`}>{s === MS_STATUS.VERIFYING ? 'progress_activity' : 'sync'}</span>
                   {s === MS_STATUS.VERIFYING ? 'Reading group from Microsoft Graph…' : 'Obtain Fresh Read-Back (Verifier)'}
-                </button>
-                <Toggle checked={simulateMismatch} onChange={setSimulateMismatch} label="Simulate state mismatch" />
+                </GatedButton>
+                {canVerify && <Toggle checked={simulateMismatch} onChange={setSimulateMismatch} label="Simulate state mismatch" />}
+                <NextActor cap={CAP.VERIFY} />
               </>
             )}
             {s === MS_STATUS.VERIFIED && (
-              <button type="button" className={BTN_PRIMARY} onClick={msActions.close}>
+              <GatedButton cap={CAP.VERIFY} onClick={msActions.close}>
                 <span className="material-symbols-outlined text-[18px]">task_alt</span>
                 Close Recovery Case (Verified)
-              </button>
+              </GatedButton>
             )}
             {s === MS_STATUS.VERIFICATION_FAILED && (
-              <button type="button" className={BTN_PRIMARY} onClick={msActions.reopen}>
+              <GatedButton cap={CAP.VERIFY} onClick={msActions.reopen}>
                 <span className="material-symbols-outlined text-[18px]">replay</span>
                 Reopen Recovery for Re-execution
-              </button>
+              </GatedButton>
             )}
             {s === MS_STATUS.VERIFICATION_FAILED && (
               <Link to="/recovery#ms-action" className={BTN_SECONDARY}>Open Recovery</Link>

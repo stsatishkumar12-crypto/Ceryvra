@@ -3,12 +3,9 @@
 import { lazy } from 'react';
 import BODY from './pages/generated/bodyClasses.json';
 
-export const ROLES = { ADMIN: 'admin', USER: 'user' };
-const ALL = [ROLES.ADMIN, ROLES.USER];
-const ADMIN_ONLY = [ROLES.ADMIN];
-
-const page = (path, title, name, load, roles = ALL) => ({
-  path, title, roles, bodyClass: BODY[name], Component: lazy(load),
+// Role access lives in roles.js (PAGE_ACCESS).
+const page = (path, title, name, load) => ({
+  path, title, bodyClass: BODY[name], Component: lazy(load),
 });
 
 export const PAGES = [
@@ -24,16 +21,6 @@ export const PAGES = [
   page('/recovery', 'Recovery', 'Recovery', () => import('./pages/generated/Recovery.jsx')),
   page('/verification', 'Verification', 'Verification', () => import('./pages/generated/Verification.jsx')),
   page('/audit-history', 'Audit History', 'AuditHistory', () => import('./pages/generated/AuditHistory.jsx')),
-  page('/admin/rules', 'Admin Rules & Evidence', 'AdminRules', () => import('./pages/generated/AdminRules.jsx'), ADMIN_ONLY),
-  page('/admin/tenants', 'Tenant & MSP Administration', 'TenantMsp', () => import('./pages/generated/TenantMsp.jsx'), ADMIN_ONLY),
+  page('/admin/rules', 'Admin Rules & Evidence', 'AdminRules', () => import('./pages/generated/AdminRules.jsx')),
+  page('/admin/tenants', 'Tenant & MSP Administration', 'TenantMsp', () => import('./pages/generated/TenantMsp.jsx')),
 ];
-
-export const HOME_BY_ROLE = {
-  [ROLES.ADMIN]: '/dashboard',
-  [ROLES.USER]: '/dashboard',
-};
-
-export function canAccess(role, path) {
-  const match = PAGES.find((p) => p.path === path);
-  return !match || match.roles.includes(role);
-}

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth';
-import { HOME_BY_ROLE, PAGES } from './routes';
+import { PAGES } from './routes';
+import { HOME_BY_ROLE, canAccess } from './roles';
 import AppLayout from './components/AppLayout';
 import AccessDenied from './components/AccessDenied';
 import Sidebar from './components/Sidebar';
@@ -9,11 +10,11 @@ import Login from './pages/Login';
 function ProtectedPage({ page }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if (!page.roles.includes(user.role)) {
+  if (!canAccess(user.role, page.path)) {
     return (
       <>
         <Sidebar />
-        <AccessDenied title={page.title} />
+        <AccessDenied title={page.title} path={page.path} />
       </>
     );
   }

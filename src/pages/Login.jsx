@@ -1,10 +1,11 @@
 // Sign-in page recreated from the client's login.html (same header, card, states and footer).
-// Added for the demo: Admin Login / User Login tabs with hardcoded credentials. Microsoft
-// Entra SSO and the workspace-domain form are simulated and sign in as the selected role.
+// Added for the demo: Admin Login / User Login tabs, each with the scope's §7 roles
+// (one hardcoded demo account per role). Microsoft Entra SSO and the workspace-domain form
+// are simulated and sign in as the selected role.
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { DEMO_ACCOUNTS, useAuth } from '../auth';
-import { HOME_BY_ROLE, ROLES } from '../routes';
+import { ADMIN_ROLES, HOME_BY_ROLE, ROLE_ICON, ROLE_LABEL, USER_ROLES } from '../roles';
 
 const LOGO = '/brand/ceryvra-logo.png';
 const MS_LOGO = '/brand/microsoft-logo.png';
@@ -21,15 +22,18 @@ const STATES = [
 ];
 
 const LOGIN_TYPES = [
-  { role: ROLES.ADMIN, icon: 'admin_panel_settings', label: 'Admin Login' },
-  { role: ROLES.USER, icon: 'person', label: 'User Login' },
+  { id: 'admin', roles: ADMIN_ROLES, icon: 'admin_panel_settings', label: 'Admin Login' },
+  { id: 'user', roles: USER_ROLES, icon: 'person', label: 'User Login' },
 ];
 
 export default function Login() {
   const { user, login, loginWithSso, logout } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState('standard');
-  const [role, setRole] = useState(ROLES.ADMIN);
+  const [loginType, setLoginType] = useState('admin');
+  const [role, setRole] = useState(ADMIN_ROLES[0]);
+  const isAdmin = loginType === 'admin';
+  const typeRoles = isAdmin ? ADMIN_ROLES : USER_ROLES;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -62,6 +66,12 @@ export default function Login() {
   };
 
   const switchType = (next) => {
+    setLoginType(next.id);
+    setRole(next.roles[0]);
+    setFormError('');
+  };
+
+  const pickRole = (next) => {
     setRole(next);
     setFormError('');
   };
@@ -173,12 +183,12 @@ export default function Login() {
                   <div className="p-space-xs bg-surface-container-low rounded-lg grid grid-cols-2 gap-space-xs" role="tablist" aria-label="Login type">
                     {LOGIN_TYPES.map((t) => (
                       <button
-                        key={t.role}
+                        key={t.id}
                         type="button"
                         role="tab"
-                        aria-selected={role === t.role}
-                        onClick={() => switchType(t.role)}
-                        className={`${role === t.role ? TAB_ON : TAB_OFF} justify-center py-2`}
+                        aria-selected={loginType === t.id}
+                        onClick={() => switchType(t)}
+                        className={`${loginType === t.id ? TAB_ON : TAB_OFF} justify-center py-2`}
                       >
                         <span className="material-symbols-outlined text-[16px]">{t.icon}</span>
                         {t.label}
@@ -186,11 +196,30 @@ export default function Login() {
                     ))}
                   </div>
 
+                  <div className="flex flex-col gap-1">
+                    <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Select role</span>
+                    <div className={`grid gap-space-xs ${isAdmin ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`} role="radiogroup" aria-label="Role">
+                      {typeRoles.map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          role="radio"
+                          aria-checked={role === r}
+                          onClick={() => pickRole(r)}
+                          className={`flex items-center gap-space-xs px-space-sm py-2 rounded-lg font-label-md text-label-md text-left transition-colors ${role === r ? 'bg-primary-fixed text-on-primary-fixed ring-2 ring-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'}`}
+                        >
+                          <span className="material-symbols-outlined text-[18px] shrink-0">{ROLE_ICON[r]}</span>
+                          <span className="leading-tight">{ROLE_LABEL[r]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <form className="flex flex-col gap-space-sm" onSubmit={submitCredentials} noValidate>
                     <div className="flex flex-col gap-1">
                       <label className="font-label-md text-label-md text-on-surface font-medium flex items-center justify-between" htmlFor="login-email">
-                        <span>{role === ROLES.ADMIN ? 'Admin Email' : 'User Email'}</span>
-                        <span className="font-label-sm text-label-sm text-secondary">{role === ROLES.ADMIN ? 'Platform / Tenant Administrator' : 'Standard Workspace User'}</span>
+                        <span>{isAdmin ? 'Admin Email' : 'User Email'}</span>
+                        <span className="font-label-sm text-label-sm text-secondary">{ROLE_LABEL[role]}</span>
                       </label>
                       <div className="relative flex items-center">
                         <span className="material-symbols-outlined absolute left-3 text-secondary text-[18px]">mail</span>
@@ -232,8 +261,8 @@ export default function Login() {
                     )}
 
                     <button className="w-full group bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg py-3 px-space-md rounded-lg flex items-center justify-center gap-3 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-surface-tint focus:ring-offset-2" type="submit">
-                      <span className="material-symbols-outlined text-[18px]">{role === ROLES.ADMIN ? 'admin_panel_settings' : 'login'}</span>
-                      <span>{role === ROLES.ADMIN ? 'Sign in as Admin' : 'Sign in as User'}</span>
+                      <span className="material-symbols-outlined text-[18px]">{ROLE_ICON[role]}</span>
+                      <span>Sign in as {ROLE_LABEL[role]}</span>
                       <span className="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
                     </button>
 

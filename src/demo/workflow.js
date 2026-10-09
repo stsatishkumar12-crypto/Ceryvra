@@ -1,17 +1,20 @@
 // The scope document's §5 "Mandatory workflow demonstration", mapped to prototype screens.
 // `to` may carry a hash; PageExtension scrolls to the matching panel.
+// `role` is the §7 role that performs (or, for system steps, reviews) the step.
+import { ROLES } from '../roles';
+
 export const WORKFLOW = [
-  { n: 1, to: '/governance-inventory', title: 'Create governed use case', detail: 'User creates a governed AI use case, with supporting chat and notes.', also: [['Governed Chat', '/governed-chat'], ['Notes', '/notes']], reqs: 'R-002, R-003' },
-  { n: 2, to: '/decision-record', title: 'Record the decision', detail: 'Reviewer records decision, evidence, authority, assumptions, rule version and exact obligations.', reqs: 'R-004, R-005, R-015' },
-  { n: 3, to: '/missing-evidence', title: 'Decision stays provisional', detail: 'Required evidence is incomplete, so the decision stays PROVISIONAL (ALL / ANY / K-of-N rules).', reqs: 'R-018' },
-  { n: 4, to: '/change-detection', title: 'Evidence changes', detail: 'New, expired or revised evidence arrives and is linked to the right decision branch.', reqs: 'R-005, R-015' },
-  { n: 5, to: '/change-detection', title: 'Materiality gate', detail: 'Material changes are separated from non-material ones; non-material matches are only logged.', reqs: 'R-016' },
-  { n: 6, to: '/revalidation', title: 'Targeted revalidation', detail: 'Only affected decisions are revalidated; the original state stays immutable and comparable side by side.', reqs: 'R-006, R-017' },
-  { n: 7, to: '/consequence-graph', title: 'Consequence graph', detail: 'Downstream affected and unaffected items are identified.', reqs: 'R-007, R-008' },
-  { n: 8, to: '/recovery', title: 'Minimum recovery plan', detail: 'Planner calculates the minimum sufficient recovery actions under rules, constraints and approvals.', reqs: 'R-009, R-019' },
-  { n: 9, to: '/recovery#ms-action', title: 'Bounded Microsoft action', detail: 'After approval, the authorized executor runs one bounded Entra ID action via Microsoft Graph.', reqs: 'R-011' },
-  { n: 10, to: '/verification#ms-verification', title: 'Independent verification', detail: 'Verifier obtains fresh source evidence; execution alone cannot close recovery.', reqs: 'R-010, R-020' },
-  { n: 11, to: '/audit-history#ms-audit', title: 'Audit record', detail: 'The audit shows the whole lifecycle: authority, provenance, failures, retries and verified closure.', reqs: 'R-014' },
+  { n: 1, role: ROLES.STANDARD_USER, to: '/governance-inventory', title: 'Create governed use case', detail: 'User creates a governed AI use case, with supporting chat and notes.', also: [['Governed Chat', '/governed-chat'], ['Notes', '/notes']], reqs: 'R-002, R-003' },
+  { n: 2, role: ROLES.APPROVER, to: '/decision-record', title: 'Record the decision', detail: 'Reviewer records decision, evidence, authority, assumptions, rule version and exact obligations.', reqs: 'R-004, R-005, R-015' },
+  { n: 3, role: ROLES.DECISION_OWNER, to: '/missing-evidence', title: 'Decision stays provisional', detail: 'Required evidence is incomplete, so the decision stays PROVISIONAL (ALL / ANY / K-of-N rules).', reqs: 'R-018' },
+  { n: 4, role: ROLES.DECISION_OWNER, to: '/change-detection', title: 'Evidence changes', detail: 'New, expired or revised evidence arrives and is linked to the right decision branch.', reqs: 'R-005, R-015' },
+  { n: 5, role: ROLES.APPROVER, to: '/change-detection', title: 'Materiality gate', detail: 'Material changes are separated from non-material ones; non-material matches are only logged.', reqs: 'R-016' },
+  { n: 6, role: ROLES.APPROVER, to: '/revalidation', title: 'Targeted revalidation', detail: 'Only affected decisions are revalidated; the original state stays immutable and comparable side by side.', reqs: 'R-006, R-017' },
+  { n: 7, role: ROLES.DECISION_OWNER, to: '/consequence-graph', title: 'Consequence graph', detail: 'Downstream affected and unaffected items are identified.', reqs: 'R-007, R-008' },
+  { n: 8, role: ROLES.APPROVER, to: '/recovery', title: 'Minimum recovery plan', detail: 'Planner calculates the minimum sufficient recovery actions under rules, constraints and approvals.', reqs: 'R-009, R-019' },
+  { n: 9, role: ROLES.EXECUTOR, to: '/recovery#ms-action', title: 'Bounded Microsoft action', detail: 'After approval, the authorized executor runs one bounded Entra ID action via Microsoft Graph.', reqs: 'R-011' },
+  { n: 10, role: ROLES.VERIFIER, to: '/verification#ms-verification', title: 'Independent verification', detail: 'Verifier obtains fresh source evidence; execution alone cannot close recovery.', reqs: 'R-010, R-020' },
+  { n: 11, role: ROLES.AUDITOR, to: '/audit-history#ms-audit', title: 'Audit record', detail: 'The audit shows the whole lifecycle: authority, provenance, failures, retries and verified closure.', reqs: 'R-014' },
 ];
 
 const pathOf = (to) => to.split('#')[0];

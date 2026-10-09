@@ -1,7 +1,9 @@
 // Sidebar card that walks through the scope's 11-step mandatory workflow demonstration.
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth';
 import { WORKFLOW, stepForPath } from '../demo/workflow';
+import { ROLE_LABEL } from '../roles';
 
 const KEY = 'ceryvra-demo-step';
 
@@ -12,6 +14,7 @@ function readStep() {
 export default function WorkflowGuide() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { user, switchRole } = useAuth();
   const [preferred, setPreferred] = useState(readStep);
   const [open, setOpen] = useState(false);
   const current = stepForPath(pathname, preferred);
@@ -25,6 +28,12 @@ export default function WorkflowGuide() {
     setPreferred(n);
     setOpen(false);
     navigate(WORKFLOW[n - 1].to);
+  };
+
+  // Demo convenience: hand the current step to the role that performs it.
+  const actAs = () => {
+    switchRole(step.role);
+    navigate(step.to);
   };
 
   return (
@@ -41,6 +50,19 @@ export default function WorkflowGuide() {
         <span className="font-body-sm text-body-sm text-on-surface-variant truncate" title={step?.detail}>
           {step ? step.title : 'Start at step 1 to follow the scope workflow.'}
         </span>
+        {step && (
+          step.role === user.role ? (
+            <span className="font-label-sm text-label-sm text-tertiary-container flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]">check_circle</span>
+              You are the {ROLE_LABEL[step.role]}
+            </span>
+          ) : (
+            <button type="button" onClick={actAs} className="font-label-sm text-label-sm text-primary hover:underline text-left flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]">switch_account</span>
+              Switch to {ROLE_LABEL[step.role]}
+            </button>
+          )
+        )}
         <div className="flex items-center gap-space-xs">
           <button type="button" disabled={!current || current === 1} onClick={() => go(current - 1)} className="flex-1 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 disabled:opacity-40">
             <span className="material-symbols-outlined text-[14px]">arrow_back</span>Prev
@@ -70,7 +92,7 @@ export default function WorkflowGuide() {
               <span className="flex flex-col min-w-0">
                 <span className="font-label-md text-label-md font-semibold">{s.title}</span>
                 <span className={`font-body-sm text-body-sm ${s.n === current ? 'text-on-primary/90' : 'text-on-surface-variant'}`}>{s.detail}</span>
-                <span className={`font-label-sm text-label-sm ${s.n === current ? 'text-on-primary/80' : 'text-secondary'}`}>{s.reqs}</span>
+                <span className={`font-label-sm text-label-sm ${s.n === current ? 'text-on-primary/80' : 'text-secondary'}`}>{ROLE_LABEL[s.role]} · {s.reqs}</span>
               </span>
             </button>
           ))}
