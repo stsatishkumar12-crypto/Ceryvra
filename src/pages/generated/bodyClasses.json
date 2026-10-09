@@ -1,0 +1,16 @@
+{
+  "HomeDashboard": "bg-background font-body-md text-body-md text-on-surface",
+  "GovernanceInventory": "bg-background font-body-md text-body-md text-on-surface",
+  "GovernedChat": "bg-background font-body-md text-body-md text-on-surface",
+  "Notes": "bg-background font-body-md text-body-md text-on-surface",
+  "DecisionRecord": "bg-background font-body-md text-body-md text-on-surface",
+  "MissingEvidence": "bg-background font-body-md text-body-md text-on-surface",
+  "ChangeDetection": "bg-background font-body-md text-body-md text-on-surface",
+  "Revalidation": "bg-background font-body-md text-body-md text-on-surface",
+  "ConsequenceGraph": "bg-background font-body-md text-on-surface antialiased",
+  "Recovery": "bg-background font-body-md text-on-surface antialiased",
+  "Verification": "bg-background font-body-md text-on-surface antialiased",
+  "AuditHistory": "bg-surface font-body-md text-on-surface antialiased",
+  "AdminRules": "bg-background font-body-md text-on-surface antialiased",
+  "TenantMsp": "bg-background font-body-md text-on-surface antialiased"
+}
