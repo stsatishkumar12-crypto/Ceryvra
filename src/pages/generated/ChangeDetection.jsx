@@ -47,7 +47,7 @@ export default function ChangeDetection() {
               </span>
               <span className={"absolute top-2 right-2 w-2 h-2 rounded-full bg-error"} />
             </button>
-            <button className={"flex items-center gap-space-xs px-space-sm h-9 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} type={"button"} data-nav="/decision-record">
+            <button className={"flex items-center gap-space-xs px-space-sm h-9 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} type={"button"} data-nav="/decision-record?new=decision">
               <span className={"material-symbols-outlined text-[18px]"}>
                 {"add"}
               </span>

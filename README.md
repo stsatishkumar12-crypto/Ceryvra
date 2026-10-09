@@ -126,6 +126,26 @@ The client screens did not yet show the Microsoft Entra / Graph action that the 
 3. **Audit History › Recovery Lifecycle:**
    - Shows every event with its timestamp and authority: approval, attempts, failures, retries, verification and closure.
 
+## Working scope features (mock data, no backend)
+
+These make the scope requirements usable in the prototype. Data is mock and tenant-scoped, and it is kept for the browser session (close the tab to reset).
+
+| Scope item | Where | What you can do |
+|---|---|---|
+| §5.1 / R-003 Create a governed use case | Governance Inventory: client's **+ Create Governed Use Case**, Dashboard **Register Governed Use Case**, Chat **Convert to Use Case** | Fill in the form (type, vendor, approved model, owner, risk, purpose, linked chat/notes) → it is listed **Under Review** → a Reviewer / Approver approves, restricts or rejects it |
+| §5.2 / R-004, R-005, R-015 Record a decision | Decision Record: **New Decision** (every header), **Record New Decision**, Notes **Elevate to Decision**, Chat **Save to Decision Ledger** | Linked use case, outcome, rationale, authority, assumptions, rule version, and evidence obligations bound to decision / version / branch / rule condition / threshold |
+| §5.3 / R-018 Provisional until complete | Decision Record and Missing Evidence | ALL / ANY / K-of-N completeness rule; the decision stays **PROVISIONAL** until it passes, then becomes **APPROVED** |
+| §6 Evidence upload | Missing Evidence → **Attach Evidence** | Upload a file or use a SharePoint document; stored with source, scope, version and SHA-256 metadata, then re-evaluated |
+| R-011 Approved Microsoft 365 read | Missing Evidence → **Approved Microsoft 365 Sources** | Read approved SharePoint libraries via a mocked Graph call; OneDrive/Teams locations that are not approved are blocked |
+| R-002 Governed chat | Governed Chat composer (**Send Query** or Ctrl+Enter) | Answer from the approved model with cited approved sources; picking the unapproved model is blocked by the tenant allow-list |
+| R-008 Recommendations | Consequence Graph → **Governed Recommendations** | Keep / Change / Replace / Restrict / Consolidate / Integrate, each with rationale, evidence and required authority; the approver accepts or dismisses |
+| R-001 Tenant isolation | Settings & Tenancy → **Tenant Isolation Check** | Five negative cross-tenant requests (API, repository, AI retrieval, evidence, connector job) are all blocked |
+| R-012 MSP mode | Sidebar workspace selector (MSP Operator, Platform Administrator) | Switch to a delegated tenant: only that tenant's data is shown. Raytheon Space is audit-only. There are no cross-tenant approve/execute rights |
+| R-013 Branding | Settings & Tenancy → **Publish Tenant Branding** | Publishes the brand form's display title, assistant name, banner and colors, plus a logo, across the app (sidebar, dashboard welcome banner, chat, colors) without a code change |
+| R-014 Audit | Audit History → **Governance Activity** | Tenant-scoped, append-only log of everything above |
+| §8 Responsive UI | Any screen below 1024px | The sidebar becomes a drawer (menu button) and pages use the full width |
+| §8 States | Sidebar → **States** | Preview loading, empty, error and permission-denied on any screen. A render error shows an error state with Retry, and lazy screens show a loading skeleton |
+
 ## Screens required by the scope (§8)
 
 All 15 are implemented:
@@ -155,8 +175,10 @@ src/pages/generated/       One component per client screen – same markup and T
 src/legacy/                Each screen's original JavaScript, run after the page mounts
 src/lib/legacy.js          Runs those scripts inside React and cleans up on navigation
 src/components/            Shared sidebar, workflow guide, layout, access-denied state
-src/components/extensions/ Scope panels added to client screens (Microsoft action, verification, audit)
-src/demo/                  Mock workflow steps and Microsoft-action state
+src/components/extensions/ Scope panels and forms added to client screens
+src/components/ui.jsx      Small UI kit (modal, fields, buttons, chips) using the client tokens
+src/components/StateViews.jsx  Loading skeleton, state previews, error boundary
+src/demo/                  Mock data: tenant-scoped store, workflow steps, Microsoft-action state
 src/pages/Login.jsx        Login page (client design + Admin/User login)
 src/auth.jsx               Demo-only auth: one hardcoded account per role (sessionStorage)
 src/roles.js               The nine roles, page access, action permissions, landing pages
@@ -172,5 +194,8 @@ If the client sends updated HTML files, put them in the parent folder and run `n
 - **Two sidebar entries added.** "Targeted Revalidation" and "Governance Notes" were added because those screens existed but had no sidebar link.
 - **Workflow Demo and Microsoft action panels added.** These cover scope §5 steps 9–11 (R-010, R-011, R-014, R-020), which the client screens did not show yet. They are injected by `src/components/PageExtension.jsx`, so the generated pages stay untouched.
 - **Admin/User login with the nine scope roles.** The login page has Admin Login and User Login tabs, a role picker and an email/password form. The rest of the client login design is unchanged.
+- **Scope panels added to client screens.** Use case, decision, evidence, Microsoft 365, recommendations, isolation, branding and activity panels are inserted next to the matching client sections. The generated pages themselves are unchanged.
+- **Responsive shell.** Below 1024px the sidebar becomes a drawer and the generated pages lose their 288px left offset. Above 1024px the layout is exactly the client design.
+- **Brand colors use CSS variables.** `primary`, `primary-container` and `surface-tint` read CSS variables whose defaults are the client hex values, so tenant branding can recolor the app.
 - **Header persona follows the signed-in role.** The client headers always showed "Dr. Elena Rostova". They now show the signed-in demo account and its role.
 - **Logos stored locally.** The logo images are saved in `public/brand/`, because the original Google-hosted image links do not load from localhost.

@@ -47,7 +47,7 @@ export default function GovernedChat() {
               </span>
               <span className={"absolute top-2 right-2 w-2 h-2 rounded-full bg-error"} />
             </button>
-            <button className={"flex items-center gap-space-xs px-space-sm h-9 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} type={"button"} data-nav="/decision-record">
+            <button className={"flex items-center gap-space-xs px-space-sm h-9 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} type={"button"} data-nav="/decision-record?new=decision">
               <span className={"material-symbols-outlined text-[18px]"}>
                 {"add"}
               </span>
@@ -110,7 +110,7 @@ export default function GovernedChat() {
                     {" Export Decision Package "}
                   </button>
                   {" "}
-                  <button className={"inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors shadow-sm"} id={"btn-convert-case"} type={"button"} data-nav="/governance-inventory">
+                  <button className={"inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors shadow-sm"} id={"btn-convert-case"} type={"button"} data-nav="/governance-inventory?new=usecase&from=chat">
                     <span className={"material-symbols-outlined text-[18px]"}>
                       {"account_tree"}
                     </span>
@@ -452,7 +452,7 @@ export default function GovernedChat() {
                             {" Copy Cryptographic Proof "}
                           </button>
                           {" "}
-                          <button className={"inline-flex items-center gap-1 text-on-surface-variant hover:text-on-surface px-2 py-1 rounded bg-surface-container font-label-sm text-label-sm transition-colors"} type={"button"} data-nav="/decision-record">
+                          <button className={"inline-flex items-center gap-1 text-on-surface-variant hover:text-on-surface px-2 py-1 rounded bg-surface-container font-label-sm text-label-sm transition-colors"} type={"button"} data-nav="/decision-record?new=decision&from=chat">
                             <span className={"material-symbols-outlined text-[16px]"}>
                               {"bookmark_add"}
                             </span>

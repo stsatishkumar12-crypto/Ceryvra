@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 // Design tokens copied 1:1 from the client HTML files (identical in all 15 pages).
+// primary / primary-container / surface-tint read CSS variables (defaults = client hex values in
+// src/index.css) so tenant branding (R-013) can recolor the app without a code fork.
 export default {
   "content": [
     "./index.html",
@@ -28,7 +30,7 @@ export default {
         "secondary-fixed": "#dae2fd",
         "inverse-surface": "#213145",
         "surface-bright": "#f8f9ff",
-        "surface-tint": "#3755c3",
+        "surface-tint": "rgb(var(--brand-surface-tint) / <alpha-value>)",
         "secondary-container": "#dae2fd",
         "tertiary-fixed-dim": "#6bd8cb",
         "on-tertiary-container": "#5fcdbf",
@@ -45,13 +47,13 @@ export default {
         "inverse-on-surface": "#eaf1ff",
         "error-container": "#ffdad6",
         "on-background": "#0b1c30",
-        "primary": "#00288e",
+        "primary": "rgb(var(--brand-primary) / <alpha-value>)",
         "on-tertiary-fixed": "#00201d",
         "tertiary-container": "#00554e",
         "on-error-container": "#93000a",
         "primary-fixed": "#dde1ff",
         "surface-container-lowest": "#ffffff",
-        "primary-container": "#1e40af",
+        "primary-container": "rgb(var(--brand-primary-container) / <alpha-value>)",
         "on-error": "#ffffff",
         "outline-variant": "#c4c5d5",
         "on-secondary-container": "#5c647a",

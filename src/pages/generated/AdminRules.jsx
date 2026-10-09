@@ -59,7 +59,7 @@ export default function AdminRules() {
               </span>
               <span className={"absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"} />
             </button>
-            <button className={"px-space-md py-space-xs rounded bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm flex items-center gap-space-xs"} data-nav="/decision-record">
+            <button className={"px-space-md py-space-xs rounded bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm flex items-center gap-space-xs"} data-nav="/decision-record?new=decision">
               <span className={"material-symbols-outlined text-[18px]"}>
                 {"add"}
               </span>

@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Brand color tokens (R-013). Defaults are the client's #00288e / #1e40af / #3755c3. */
+:root {
+  --brand-primary: 0 40 142;
+  --brand-primary-container: 30 64 175;
+  --brand-surface-tint: 55 85 195;
+}
+
 /* Same base layer as every client HTML file */
 @layer base {
   html, body { margin: 0; padding: 0; }
@@ -10,3 +17,16 @@
   main > :last-child { margin-bottom: 0 !important; }
 }
 ::-webkit-scrollbar { display: none; }
+
+/* Responsive shell (scope §8). The client screens are desktop layouts with a fixed 288px
+   sidebar; below 1024px the sidebar becomes a drawer and the page uses the full width. */
+@media (max-width: 1023.98px) {
+  [data-app-shell] .pl-72 { padding-left: 0 !important; }
+  [data-app-shell] .left-72 { left: 0 !important; }
+  [data-app-shell] header.fixed { padding-left: 4rem !important; overflow-x: auto; }
+  [data-app-shell] header.fixed > * { flex-shrink: 0; }
+  [data-app-shell] main { overflow-x: auto; }
+}
+@media (max-width: 639.98px) {
+  [data-app-shell] main { padding-left: 1rem !important; padding-right: 1rem !important; }
+}

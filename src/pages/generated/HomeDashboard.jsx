@@ -47,7 +47,7 @@ export default function HomeDashboard() {
               </span>
               <span className={"absolute top-2 right-2 w-2 h-2 rounded-full bg-error"} />
             </button>
-            <button className={"flex items-center gap-space-xs px-space-sm h-9 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} type={"button"} data-nav="/decision-record">
+            <button className={"flex items-center gap-space-xs px-space-sm h-9 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} type={"button"} data-nav="/decision-record?new=decision">
               <span className={"material-symbols-outlined text-[18px]"}>
                 {"add"}
               </span>
@@ -383,7 +383,7 @@ export default function HomeDashboard() {
                   </span>
                 </div>
                 <div className={"flex flex-wrap items-center gap-space-xs"}>
-                  <button className={"flex items-center gap-1.5 px-space-sm py-1.5 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} data-nav="/governance-inventory">
+                  <button className={"flex items-center gap-1.5 px-space-sm py-1.5 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity"} data-nav="/governance-inventory?new=usecase">
                     <span className={"material-symbols-outlined text-[17px]"}>
                       {"add_box"}
                     </span>
@@ -403,7 +403,7 @@ export default function HomeDashboard() {
                     </span>
                   </button>
                   {" "}
-                  <button className={"flex items-center gap-1.5 px-space-sm py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg font-label-md text-label-md transition-colors"} data-nav="/decision-record">
+                  <button className={"flex items-center gap-1.5 px-space-sm py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg font-label-md text-label-md transition-colors"} data-nav="/decision-record?new=decision">
                     <span className={"material-symbols-outlined text-[17px] text-tertiary-container"}>
                       {"balance"}
                     </span>
@@ -1079,7 +1079,7 @@ export default function HomeDashboard() {
                   </div>
                 </div>
                 <div className={"flex flex-wrap items-center justify-center gap-space-sm"}>
-                  <button className={"px-space-lg py-2.5 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity flex items-center gap-2"} data-nav="/governance-inventory">
+                  <button className={"px-space-lg py-2.5 bg-primary-container text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-95 transition-opacity flex items-center gap-2"} data-nav="/governance-inventory?new=usecase">
                     <span className={"material-symbols-outlined text-[18px]"}>
                       {"add"}
                     </span>

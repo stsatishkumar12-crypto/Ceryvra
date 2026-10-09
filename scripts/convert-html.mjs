@@ -14,16 +14,16 @@ const PAGES_DIR = path.resolve('src/pages/generated');
 const LEGACY_DIR = path.resolve('src/legacy');
 
 // Global buttons that appear in every page header.
-const GLOBAL_NAV = [{ text: 'New Decision', to: '/decision-record' }];
+const GLOBAL_NAV = [{ text: 'New Decision', to: '/decision-record?new=decision' }];
 
 const PAGES = [
   {
     file: 'home-dashboard.html', name: 'HomeDashboard',
     nav: [
-      { text: 'Register Governed Use Case', to: '/governance-inventory' },
-      { text: 'Create First Governed Use Case', to: '/governance-inventory' },
+      { text: 'Register Governed Use Case', to: '/governance-inventory?new=usecase' },
+      { text: 'Create First Governed Use Case', to: '/governance-inventory?new=usecase' },
       { text: 'Open Governed Enclave', to: '/governed-chat' },
-      { text: 'Record Policy Decision', to: '/decision-record' },
+      { text: 'Record Policy Decision', to: '/decision-record?new=decision' },
       { text: 'Review & Attest Evidence', to: '/missing-evidence' },
       { text: 'Inspect Audit Log', to: '/audit-history' },
       { text: 'Open Complete Ledger Audit Trail', to: '/audit-history' },
@@ -39,8 +39,8 @@ const PAGES = [
   {
     file: 'Governed-Chat-page.html', name: 'GovernedChat',
     nav: [
-      { text: 'Convert to Use Case', to: '/governance-inventory' },
-      { text: 'Save to Decision Ledger', to: '/decision-record' },
+      { text: 'Convert to Use Case', to: '/governance-inventory?new=usecase&from=chat' },
+      { text: 'Save to Decision Ledger', to: '/decision-record?new=decision&from=chat' },
       { text: 'Review Missing Proof', to: '/missing-evidence' },
       { text: 'Submit for Multi-Sig Verification', to: '/verification' },
     ],
@@ -48,7 +48,7 @@ const PAGES = [
   {
     file: 'Notes-page.html', name: 'Notes',
     nav: [
-      { text: 'Elevate to Decision', to: '/decision-record' },
+      { text: 'Elevate to Decision', to: '/decision-record?new=decision&from=notes' },
       { text: 'Link Decision Proof', to: '/decision-record' },
       { text: '[Decision #14,820', to: '/decision-record' },
       { text: '[SRC-02: Vendor-Audit]', to: '/governed-chat' },

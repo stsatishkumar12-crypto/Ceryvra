@@ -3,10 +3,12 @@
 // The client pages each had a slightly different sidebar; this one unifies them so every page
 // is reachable. "Targeted Revalidation" and "Governance Notes" were added because those
 // screens exist in the client files but had no sidebar entry.
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { ROLE_ICON, ROLE_LABEL, canAccess } from '../roles';
 import WorkflowGuide from './WorkflowGuide';
+import { TenantSwitcher } from './extensions/Tenancy';
 
 const IDLE = 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface';
 const ACTIVE = 'bg-primary-container text-on-primary font-semibold shadow-sm';
@@ -76,7 +78,45 @@ function Item({ item, child = false, highlight = true }) {
   );
 }
 
-export default function Sidebar() {
+const STATES = [
+  ['', 'Live screen', 'visibility'],
+  ['loading', 'Loading', 'hourglass_empty'],
+  ['empty', 'Empty', 'inbox'],
+  ['error', 'Error', 'error'],
+  ['denied', 'Permission denied', 'gpp_bad'],
+];
+
+// Previews the standard app-shell states (scope §8) on the current screen.
+function StateMenu() {
+  const [open, setOpen] = useState(false);
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
+  const current = new URLSearchParams(search).get('preview') || '';
+  const pick = (kind) => {
+    setOpen(false);
+    navigate(kind ? `${pathname}?preview=${kind}` : pathname);
+  };
+  return (
+    <div className="relative">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface">
+        <span className="material-symbols-outlined text-[16px]">layers</span>
+        <span className="font-label-sm text-label-sm">States</span>
+      </button>
+      {open && (
+        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-48 bg-surface-container-lowest rounded-lg shadow-xl p-space-xs flex flex-col gap-0.5 z-50">
+          <span className="px-space-xs pt-1 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Preview screen state</span>
+          {STATES.map(([kind, label, icon]) => (
+            <button key={label} type="button" onClick={() => pick(kind)} className={`text-left px-space-xs py-1 rounded flex items-center gap-space-xs font-label-md text-label-md ${current === kind ? 'bg-primary-fixed text-on-primary-fixed' : 'text-on-surface hover:bg-surface-container-low'}`}>
+              <span className="material-symbols-outlined text-[16px]">{icon}</span>{label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Sidebar({ open = false, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const allowed = (item) => canAccess(user.role, item.to);
@@ -87,7 +127,10 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+    <aside
+      className={`fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)] transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+      aria-label="Main navigation"
+    >
       <div className="flex flex-col min-h-0 flex-1">
         <div className="px-space-md py-space-md flex items-center justify-between bg-surface-container">
           <div className="flex items-center gap-space-sm">
@@ -99,19 +142,13 @@ export default function Sidebar() {
               <span className="font-label-sm text-label-sm text-on-surface-variant">AI GOVERNANCE ENGINE</span>
             </div>
           </div>
-          <span className="material-symbols-outlined text-on-surface-variant text-[18px]">verified_user</span>
+          <span className="material-symbols-outlined text-on-surface-variant text-[18px] hidden lg:inline">verified_user</span>
+          <button type="button" onClick={onClose} className="lg:hidden p-1 rounded text-on-surface-variant hover:bg-surface-container-high" aria-label="Close navigation">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
         </div>
         <div className="px-space-md py-space-sm bg-surface-container-high/60">
-          <div className="p-space-xs rounded bg-surface-container-lowest flex items-center justify-between">
-            <div className="flex items-center gap-space-xs overflow-hidden">
-              <span className="material-symbols-outlined text-primary text-[16px]">domain</span>
-              <div className="flex flex-col truncate">
-                <span className="font-label-sm text-label-sm text-on-surface-variant uppercase">Enclave Workspace</span>
-                <span className="font-body-sm text-body-sm text-on-surface font-semibold truncate">Global Aerospace &amp; Defense (US-Gov)</span>
-              </div>
-            </div>
-            <span className="material-symbols-outlined text-on-surface-variant text-[16px]">unfold_more</span>
-          </div>
+          <TenantSwitcher />
         </div>
         <nav className="flex-1 overflow-y-auto px-space-sm py-space-sm flex flex-col gap-space-xs">
           {TOP.filter(allowed).map((item) => <Item key={item.to} item={item} />)}
@@ -151,6 +188,7 @@ export default function Sidebar() {
             <span className="material-symbols-outlined text-[16px]">help_outline</span>
             <span className="font-label-sm text-label-sm">Help &amp; Docs</span>
           </a>
+          <StateMenu />
           <button type="button" onClick={signOut} className="flex items-center gap-space-xs text-on-surface-variant hover:text-error">
             <span className="material-symbols-outlined text-[16px]">logout</span>
             <span className="font-label-sm text-label-sm">Sign out</span>
